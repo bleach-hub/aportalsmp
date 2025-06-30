@@ -12,7 +12,7 @@ This is an asynchronous version of my previous library - [portalsmp](https://pyp
 
 ## Change log
 
-#### Version 1.0
+#### Version 1.1
 
 - First release of the library
 
