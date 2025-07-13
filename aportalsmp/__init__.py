@@ -19,7 +19,11 @@ from .classes.Objects import (
     CollectionItem,
     Activity,
     MyActivity,
-    SaleResult
+    SaleResult,
+    Giveaway,
+    GiveawayChannel,
+    GiveawayPrize,
+    GiveawayRequirements
 )
 from .classes.Exceptions import (
     authDataError,
@@ -44,6 +48,9 @@ from .gifts import (
     changePrice,
     bulkList,
     sale,
+    getGiveaways,
+    giveawayInfo,
+    joinGiveaway
 )
 from .offers import (
     makeOffer,
@@ -95,6 +102,9 @@ __all__ = [
     "myPlacedOffers",
     "toShortName",
     "convertForBuying",
-    "convertForListing"
+    "convertForListing",
+    "getGiveaways",
+    "giveawayInfo",
+    "joinGiveaway",
 ]
 
