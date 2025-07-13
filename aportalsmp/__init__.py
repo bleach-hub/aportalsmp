@@ -50,7 +50,9 @@ from .gifts import (
     sale,
     getGiveaways,
     giveawayInfo,
-    joinGiveaway
+    joinGiveaway,
+    transferGifts,
+    withdrawGifts
 )
 from .offers import (
     makeOffer,
@@ -106,5 +108,6 @@ __all__ = [
     "getGiveaways",
     "giveawayInfo",
     "joinGiveaway",
+    "transferGifts",
+    "withdrawGifts"
 ]
-
