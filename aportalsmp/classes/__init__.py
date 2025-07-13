@@ -11,7 +11,11 @@ from .Objects import (
     CollectionItem,
     Activity,
     MyActivity,
-    SaleResult
+    SaleResult,
+    Giveaway,
+    GiveawayChannel,
+    GiveawayPrize,
+    GiveawayRequirements
 )
 from .Exceptions import (
     authDataError,
@@ -45,5 +49,9 @@ __all__ = [
     "connectionError",
     "floorsError",
     "giftsError",
-    "tradingError"
+    "tradingError",
+    "Giveaway",
+    "GiveawayChannel",
+    "GiveawayPrize",
+    "GiveawayRequirements"
 ]
