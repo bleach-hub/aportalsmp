@@ -2,7 +2,7 @@ from .utils.other import API_URL, HEADERS_MAIN, SORTS
 from .utils.functions import toShortName, cap, listToURL, activityListToURL
 from .handlers import requestExceptionHandler, fetch
 from .classes.Exceptions import authDataError, floorsError, giftsError, tradingError
-from .classes.Objects import GiftsFloors, Filters, Collections, PortalsGift, Activity, MyActivity, SaleResult
+from .classes.Objects import GiftsFloors, Filters, Collections, PortalsGift, Activity, MyActivity, SaleResult, Giveaway, GiveawayRequirements
 from urllib.parse import quote_plus
 
 ######################################################################
@@ -278,8 +278,103 @@ async def marketActivity(sort: str = "latest", offset: int = 0, limit: int = 20,
 
     return [Activity(activity) for activity in response.json()['actions']]
 
-# ================ My ================
+async def getGiveaways(offset: int = 0, limit: int = 20, authData: str = "") -> list[Giveaway]:
+    """
+    Retrieves a list of giveaways from the marketplace.
 
+    Args:
+        offset (int): The pagination offset (limit*(page+1)). Defaults to 0.
+        limit (int): The maximum number of results to return. Defaults to 20.
+        authData (str): The authentication data required for the API request.
+    Returns:
+        list[Giveaway]: A list of Giveaway objects containing the giveaway details.
+    Raises:
+        authDataError: If authData is not provided.
+        requestError: If the API request fails or returns a non-200 status code.
+    """
+    URL = API_URL + "giveaways/" + f"?offset={offset}" + f"&limit={limit}" + f"&status=active"
+
+    if not authData:
+        raise authDataError("aportalsmp: getGiveaways(): Error: authData is required")
+    if type(offset) != int or type(limit) != int:
+        raise giftsError("aportalsmp: getGiveaways(): Error: offset and limit must be integers")
+    
+    HEADERS = {**HEADERS_MAIN, "Authorization": authData}
+
+    response = await fetch(method="GET", url=URL, headers=HEADERS, impersonate="chrome110")
+
+    requestExceptionHandler(response, "getGiveaways")
+
+    return [Giveaway(giveaway) for giveaway in response.json()['giveaways']] if "giveaways" in response.json() else []
+
+async def giveawayInfo(giveaway_id: str = "", authData: str = "") -> GiveawayRequirements:
+    """
+    Retrieves the requirements for a specific giveaway.
+
+    Args:
+        giveaway_id (str): The unique identifier of the giveaway.
+        authData (str): The authentication data required for the API request.
+
+    Returns:
+        GiveawayRequirements: An instance of GiveawayRequirements containing the giveaway requirements if the request is successful.
+
+    Raises:
+        authDataError: If authData is not provided.
+        giftsError: If giveaway_id is not provided or is not a string.
+        requestError: If the API request fails or returns a non-200 status code.
+    """
+    URL = API_URL + "giveaways/" + f"{giveaway_id}/" + "requirements"
+
+    if not giveaway_id:
+        raise giftsError("aportalsmp: giveawayInfo(): Error: giveaway_id is required")
+    if type(giveaway_id) != str:
+        raise giftsError("aportalsmp: giveawayInfo(): Error: giveaway_id must be a string")
+    if not authData:
+        raise authDataError("aportalsmp: giveawayInfo(): Error: authData is required")
+    
+    HEADERS = {**HEADERS_MAIN, "Authorization": authData}
+
+    response = await fetch(method="GET", url=URL, headers=HEADERS, impersonate="chrome110")
+
+    requestExceptionHandler(response, "giveawayInfo")
+
+    return GiveawayRequirements(response.json()) if response.status_code == 200 else None
+
+async def joinGiveaway(giveaway_id: str = "", authData: str = "") -> None:
+    """
+    Joins a giveaway with the specified giveaway_id.
+
+    Args:
+        giveaway_id (str): The unique identifier of the giveaway to join.
+        authData (str): The authentication data required for the API request.
+
+    Returns:
+        None: if the request is successful, likely a 204 no content response from the API.
+
+    Raises:
+        authDataError: If authData is not provided.
+        giftsError: If giveaway_id is not provided or is not a string.
+        requestError: If the API request fails or returns a non-200 status code.
+    """
+    URL = API_URL + "giveaways/" + f"{giveaway_id}/" + "join"
+
+    if not giveaway_id:
+        raise giftsError("aportalsmp: joinGiveaway(): Error: giveaway_id is required")
+    if type(giveaway_id) != str:
+        raise giftsError("aportalsmp: joinGiveaway(): Error: giveaway_id must be a string")
+    if not authData:
+        raise authDataError("aportalsmp: joinGiveaway(): Error: authData is required")
+
+    HEADERS = {**HEADERS_MAIN, "Authorization": authData}
+
+    response = await fetch(method="POST", url=URL, headers=HEADERS, impersonate="chrome110")
+
+    requestExceptionHandler(response, "joinGiveaway")
+
+    if response.status_code == 204:
+        return None
+
+# ================ My ================
 
 async def myPortalsGifts(offset: int = 0, limit: int = 20, listed: bool = True, authData: str = "") -> list[PortalsGift]:
     """
@@ -343,8 +438,50 @@ async def myActivity(offset: int = 0, limit: int = 20, authData: str = "") -> li
 
     return [MyActivity(action) for action in response.json()['actions']]
 
-# ================ Trading ================
+async def transferGifts(nft_ids: list = [], username: str = "", anonymous: bool = False, authData: str = "") -> None:
+    """
+    Transfers gifts to a specified user inside the marketplace.
 
+    Args:
+        nft_ids (list): A list of NFT IDs to be transferred.
+        username (str): The username of the recipient to whom the gifts will be transferred.
+        anonymous (bool): If True, the transfer will be anonymous. Defaults to False.
+        authData (str): The authentication data required for the API request.
+
+    Returns:
+        None: if the request is successful, likely a 204 no content response from the API.
+
+    Raises:
+        authDataError: If authData is not provided.
+        giftsError: If nft_ids is not a non-empty list or if username is not provided.
+        requestError: If the API request fails or returns a non-200 status code.
+    """
+    URL = API_URL + "nfts/transfer-gifts"
+
+    if not authData:
+        raise authDataError("aportalsmp: transferGifts(): Error: authData is required")
+    if type(nft_ids) != list or len(nft_ids) == 0:
+        raise giftsError("aportalsmp: transferGifts(): Error: nft_ids must be a non-empty list")
+    if not username:
+        raise giftsError("aportalsmp: transferGifts(): Error: username is required")
+    if anonymous not in [0, 1, True, False]:
+        raise giftsError("aportalsmp: transferGifts(): Error: anonymous must be a boolean value (True or False)")
+
+    HEADERS = {**HEADERS_MAIN, "Authorization": authData}
+
+    PAYLOAD = {
+        "nft_ids": nft_ids,
+        "recipient": username,
+        "anonymous": bool(anonymous)
+    }
+
+    response = await fetch(method="POST", url=URL, json=PAYLOAD, headers=HEADERS, impersonate="chrome110")
+
+    requestExceptionHandler(response, "transferGifts")
+
+    return None
+
+# ================ Trading ================
 
 async def buy(nft_id: str = "", price: int|float = 0, authData: str = "") -> None:
     """
@@ -504,3 +641,40 @@ async def sale(nft_id: str = "", price: int|float = 0,authData: str = "") -> Sal
     requestExceptionHandler(response, "sale")
 
     return SaleResult(response.json())
+
+async def withdrawGifts(nft_ids: list = [], authData: str = "") -> None:
+    """
+    [NOT TESTED]
+    Withdraws multiple / single NFT(s) from the marketplace.
+
+    Args:
+        nft_ids (list): A list of NFT IDs to withdraw. If a single NFT is to be withdrawn, pass a list with one item.
+        authData (str): The authentication data required for the API request.
+
+    Returns:
+        None: if the request is successful, likely a 204 no content response from the API.
+
+    Raises:
+        authDataError: If authData is not provided.
+        tradingError: If nft_ids is not a non-empty list.
+        requestError: If the API request fails or returns a non-200 status code.
+    """
+
+    URL = API_URL + "nfts/withdraw"
+
+    if not authData:
+        raise authDataError("aportalsmp: withdrawGifts(): Error: authData is required")
+    if type(nft_ids) != list or len(nft_ids) == 0:
+        raise tradingError("aportalsmp: withdrawGifts(): Error: nft_ids must be a non-empty list")
+    
+    HEADERS = {**HEADERS_MAIN, "Authorization": authData}
+
+    PAYLOAD = {
+        "gift_ids": nft_ids
+    }
+
+    response = await fetch(method="POST", url=URL, json=PAYLOAD, headers=HEADERS, impersonate="chrome110")
+
+    requestExceptionHandler(response, "withdrawGifts")
+
+    return None
