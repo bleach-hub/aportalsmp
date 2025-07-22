@@ -1,4 +1,4 @@
-[![pypi](https://img.shields.io/pypi/v/aportalsmp.svg)](https://pypi.org/project/aportalsmp/)![PyPI - Downloads](https://img.shields.io/pypi/dm/aportalsmp)[![stars](https://img.shields.io/github/stars/bleach-hub/aportalsmp?style=social)](https://github.com/bleach-hub/aportalsmp/stargazers) [![Me](https://img.shields.io/badge/Telegram-@perfectlystill-blue?logo=telegram)](https://t.me/perfectlystill) [![Updates & Devs chat](https://img.shields.io/badge/Telegram-@giftsdevs-blue?logo=telegram)](https://t.me/giftsdevs)
+[![pypi](https://img.shields.io/pypi/v/aportalsmp.svg)](https://pypi.org/project/aportalsmp/) ![PyPI - Downloads](https://img.shields.io/pypi/dm/aportalsmp) [![stars](https://img.shields.io/github/stars/bleach-hub/aportalsmp?style=social)](https://github.com/bleach-hub/aportalsmp/stargazers) [![Me](https://img.shields.io/badge/Telegram-@perfectlystill-blue?logo=telegram)](https://t.me/perfectlystill) [![Updates & Devs chat](https://img.shields.io/badge/Telegram-@giftsdevs-blue?logo=telegram)](https://t.me/giftsdevs)
 
 # Asynchronous Portals Marketplace API
 
