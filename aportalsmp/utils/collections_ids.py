@@ -84,5 +84,10 @@ collections_ids = {
     "Lush Bouquet": "a656ed7d-fcd7-4412-b143-94e6aafcb30b",
     "Joyful Bundle": "c2d8ee29-e14b-4372-9b79-72407f9d593d",
     "Valentine Box": "d865f0ce-aa14-4764-aa9f-87fb27cb050c",
-    "Snoop Cigar": "f0b752de-c997-43dd-859c-f309008b2352"
+    "Snoop Cigar": "f0b752de-c997-43dd-859c-f309008b2352",
+    "Artisan Brick": "542a9425-0fbe-42ab-b389-0f9e1581d9c6",
+    "Mighty Arm": "c881c80a-3b38-4afd-a8ff-50835dcb07b1",
+    "Moon Pendant": "899324a6-c867-4d22-8883-44164f0fb155",
+    "Input Key": "46c95fc3-b4a5-492c-9bb9-974c4c27d858",
+    "Ionic Dryer": "13046126-f10f-46c8-9648-97edee365c27"
 }
