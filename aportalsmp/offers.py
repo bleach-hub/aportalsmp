@@ -1,6 +1,6 @@
 from .utils.functions import cap
 from .utils.other import API_URL, HEADERS_MAIN
-from .utils.collections_ids import collections_ids
+from .utils.mapping import get_collection_id
 from .classes.Exceptions import authDataError, offerError
 from .classes.Objects import CollectionOffer, GiftOffer
 from .handlers import fetch, requestExceptionHandler
@@ -163,12 +163,10 @@ async def collectionOffer(gift_name: str = "", amount: float | int = 0, expirati
     if expiration_days not in [0,7]:
         raise offerError("aportalsmp: collectionOffer(): Error: expiration_days must be 0 (no expiration) or 7 (7 days)")
 
-    gift_name = cap(gift_name)
-
-    ID = collections_ids.get(gift_name, None)
-
-    if ID is None:
-        raise offerError("aportalsmp: collectionOffer(): Error: gift_name is invalid")
+    try:
+        ID = await get_collection_id(gift_name, authData)
+    except ValueError as e:
+        raise offerError(str(e))
 
     HEADERS = {**HEADERS_MAIN, "Authorization": authData}
 
@@ -280,11 +278,10 @@ async def allCollectionOffers(gift_name: str = "", authData: str = "") -> list[C
     if not gift_name:
         raise offerError("aportalsmp: allCollectionOffers(): Error: gift_name is required")
     
-    gift_name = cap(gift_name)
-    ID = collections_ids.get(gift_name, None)
-
-    if ID is None:
-        raise offerError("aportalsmp: allCollectionOffers(): Error: gift_name is invalid")
+    try:
+        ID = await get_collection_id(gift_name, authData)
+    except ValueError as e:
+        raise offerError(str(e))
     if not authData:
         raise authDataError("aportalsmp: allCollectionOffers(): Error: authData is required")
     
@@ -315,9 +312,9 @@ async def topOffer(gift_name: str = "", authData: str = "") -> CollectionOffer |
     URL = API_URL + "collection-offers/"
 
     try:
-        ID = collections_ids[cap(gift_name)]
-    except:
-        raise offerError("aportalsmp: topOffer(): Error: gift_name is invalid")
+        ID = await get_collection_id(gift_name, authData)
+    except ValueError as e:
+        raise offerError(str(e))
 
     if authData == "":
         raise authDataError("aportalsmp: topOffer(): Error: authData is required")

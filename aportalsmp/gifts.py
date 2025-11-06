@@ -1,5 +1,6 @@
 from .utils.other import API_URL, HEADERS_MAIN, SORTS
 from .utils.functions import toShortName, cap, listToURL, activityListToURL
+from .utils.mapping import get_collection_id, get_collection_ids
 from .handlers import requestExceptionHandler, fetch
 from .classes.Exceptions import authDataError, floorsError, giftsError, tradingError
 from .classes.Objects import GiftsFloors, Filters, Collections, PortalsGift, Activity, MyActivity, SaleResult, Giveaway, GiveawayRequirements
@@ -151,9 +152,11 @@ async def search(sort: str = "price_asc", offset: int = 0, limit: int = 20, gift
 
     if gift_name:
         if type(gift_name) == str:
-            URL += f"&filter_by_collections={quote_plus(cap(gift_name))}"
+            collection_id = await get_collection_id(gift_name, authData)
+            URL += f"&collection_ids={collection_id}"
         elif type(gift_name) == list:
-            URL += f"&filter_by_collections={listToURL(gift_name)}"
+            collection_ids_list = await get_collection_ids(gift_name, authData)
+            URL += f"&collection_ids={','.join(collection_ids_list)}"
         else:
             raise giftsError("aportalsmp: search(): Error: gift_name must be a string or list")
     if model:
@@ -240,9 +243,11 @@ async def marketActivity(sort: str = "latest", offset: int = 0, limit: int = 20,
 
     if gift_name:
         if type(gift_name) == str:
-            URL += f"&filter_by_collections={quote_plus(cap(gift_name))}"
+            collection_id = await get_collection_id(gift_name, authData)
+            URL += f"&collection_ids={collection_id}"
         elif type(gift_name) == list:
-            URL += f"&filter_by_collections={listToURL(gift_name)}"
+            collection_ids_list = await get_collection_ids(gift_name, authData)
+            URL += f"&collection_ids={','.join(collection_ids_list)}"
         else:
             raise giftsError("aportalsmp: marketActivity(): Error: gift_name must be a string or list")
     if model:
