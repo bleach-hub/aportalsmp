@@ -57,7 +57,7 @@ collections_ids = {
     "Big Year": "8b58d6ea-a8e0-47ef-bdd1-3ade5d5ea0cb",
     "Ginger Cookie": "b85209cd-4e16-4d1a-985c-d784619fe2d0",
     "Pet Snake": "563ed415-a63b-49e8-870d-745602fb3de3",
-    "Jack-in-the-Box": "996e7628-28bf-4874-b3ec-2e5f7c1cb684",
+    "Jack-In-The-Box": "996e7628-28bf-4874-b3ec-2e5f7c1cb684",
     "Snow Mittens": "0009551d-bdd4-40ee-a276-b6e01fa4d327",
     "B-Day Candle": "12efb9cd-179f-44c6-af65-a63480691c18",
     "Berry Box": "b8747d58-90ed-49cf-8e29-b9e2c8b3e7a6",
