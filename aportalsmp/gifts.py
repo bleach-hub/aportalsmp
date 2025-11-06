@@ -1,5 +1,6 @@
 from .utils.other import API_URL, HEADERS_MAIN, SORTS
 from .utils.functions import toShortName, cap, listToURL, activityListToURL
+from .utils.collections_ids import collections_ids
 from .handlers import requestExceptionHandler, fetch
 from .classes.Exceptions import authDataError, floorsError, giftsError, tradingError
 from .classes.Objects import GiftsFloors, Filters, Collections, PortalsGift, Activity, MyActivity, SaleResult, Giveaway, GiveawayRequirements
@@ -104,7 +105,7 @@ async def collections(limit: int = 100, authData: str = "") -> Collections:
 
 # ================ Gifts ================
 
-async def search(sort: str = "price_asc", offset: int = 0, limit: int = 20, gift_name: str | list = "", model: str | list = "", backdrop: str | list = "", symbol: str | list = "", min_price: int = 0, max_price: int = 100000, authData: str = "") -> list[PortalsGift]:
+async def search(sort: str = "price_asc", offset: int = 0, limit: int = 20, gift_name: str | list = "", model: str | list = "", backdrop: str | list = "", symbol: str | list = "", min_price: int = 0, max_price: int = 100000, exclude_bundled: bool = True, premarket_status: str = "all", authData: str = "") -> list[PortalsGift]:
     """
     Search for gifts with various filters and sorting options.
 
@@ -127,11 +128,20 @@ async def search(sort: str = "price_asc", offset: int = 0, limit: int = 20, gift
         giftsError: If max_price is less than min_price or if min_price and max_price are not integers.
         giftsError: If gift_name, model, backdrop, or symbol are not strings or lists.
         giftsError: If sort is not one of the valid options.
+        giftsError: If premarket_status is not one of the valid options.
         requestError: If the API request fails.
+    
+    НОВЫЕ ПАРАМЕТРЫ:
+        exclude_bundled (bool): Whether to exclude bundled gifts. True or False. Defaults to True.
+        premarket_status (str): Premarket status filter. Options: "all", "only_premarket", "without_premarket". Defaults to "all".
     """
 
     if sort not in SORTS:
         raise giftsError(f"aportalsmp: search(): Error: sort must be one of these options: {list(SORTS.keys())}")
+    
+    PREMARKET_STATUSES = ["all", "only_premarket", "without_premarket"]
+    if premarket_status not in PREMARKET_STATUSES:
+        raise giftsError(f"aportalsmp: search(): Error: premarket_status must be one of these options: {PREMARKET_STATUSES}")
 
     URL = API_URL + "nfts/" + "search?" + f"offset={offset}" + f"&limit={limit}" + f"{SORTS[sort]}" 
 
@@ -151,9 +161,22 @@ async def search(sort: str = "price_asc", offset: int = 0, limit: int = 20, gift
 
     if gift_name:
         if type(gift_name) == str:
-            URL += f"&filter_by_collections={quote_plus(cap(gift_name))}"
+            # ТУт нейм в айди конверт
+            gift_id = collections_ids.get(cap(gift_name))
+            if gift_id:
+                URL += f"&collection_ids={gift_id}"
+            else:
+                raise giftsError(f"aportalsmp: search(): Error: gift_name '{gift_name}' not found in collections_ids")
         elif type(gift_name) == list:
-            URL += f"&filter_by_collections={listToURL(gift_name)}"
+            # Тут список неймов в айди конверт
+            gift_ids = []
+            for name in gift_name:
+                gift_id = collections_ids.get(cap(name))
+                if gift_id:
+                    gift_ids.append(gift_id)
+                else:
+                    raise giftsError(f"aportalsmp: search(): Error: gift_name '{name}' not found in collections_ids")
+            URL += f"&collection_ids={','.join(gift_ids)}"
         else:
             raise giftsError("aportalsmp: search(): Error: gift_name must be a string or list")
     if model:
@@ -179,6 +202,8 @@ async def search(sort: str = "price_asc", offset: int = 0, limit: int = 20, gift
             raise giftsError("aportalsmp: search(): Error: symbol must be a string or list")
 
     URL += "&status=listed"
+    URL += f"&exclude_bundled={str(exclude_bundled).lower()}"
+    URL += f"&premarket_status={premarket_status}"
 
     HEADERS = {**HEADERS_MAIN, "Authorization": authData}
 
