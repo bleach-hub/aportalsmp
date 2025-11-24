@@ -1,3 +1,5 @@
+from typing import Optional
+
 from .utils.other import API_URL, HEADERS_MAIN, SORTS
 from .utils.functions import toShortName, cap, listToURL, activityListToURL
 from .utils.collections_ids import collections_ids
@@ -105,7 +107,19 @@ async def collections(limit: int = 100, authData: str = "") -> Collections:
 
 # ================ Gifts ================
 
-async def search(sort: str = "price_asc", offset: int = 0, limit: int = 20, gift_name: str | list = "", model: str | list = "", backdrop: str | list = "", symbol: str | list = "", min_price: int = 0, max_price: int = 100000, exclude_bundled: bool = True, premarket_status: str = "all", authData: str = "") -> list[PortalsGift]:
+async def search(sort: str = "price_asc",
+                 offset: int = 0,
+                 limit: int = 20,
+                 gift_name: str | list = "",
+                 model: str | list = "",
+                 backdrop: str | list = "",
+                 symbol: str | list = "",
+                 min_price: int = 0,
+                 max_price: int = 100000,
+                 exclude_bundled: bool = True,
+                 premarket_status: str = "all",
+                 authData: str = "",
+                 proxies: Optional[dict] = None) -> list[PortalsGift]:
     """
     Search for gifts with various filters and sorting options.
 
@@ -207,7 +221,7 @@ async def search(sort: str = "price_asc", offset: int = 0, limit: int = 20, gift
 
     HEADERS = {**HEADERS_MAIN, "Authorization": authData}
 
-    response = await fetch(method="GET", url=URL, headers=HEADERS, impersonate="chrome110")
+    response = await fetch(method="GET", url=URL, headers=HEADERS, impersonate="chrome110", proxies=proxies)
 
     requestExceptionHandler(response, "search")
 
