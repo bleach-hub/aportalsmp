@@ -522,7 +522,7 @@ async def transferGifts(nft_ids: list = [], username: str = "", anonymous: bool 
 
 # ================ Trading ================
 
-async def buy(nft_id: str = "", price: int|float = 0, authData: str = "") -> None:
+async def buy(nft_id: str = "", price: int|float = 0, authData: str = ""):
     """
     Buys a gift with the given nft_id at the given price.
 
@@ -532,7 +532,22 @@ async def buy(nft_id: str = "", price: int|float = 0, authData: str = "") -> Non
         authData (str): The authentication data required for the API request.
 
     Returns:
-        None: if the request is successful
+        dict: JSON-ответ API. Например:
+            {
+               "total_requested":1,
+               "total_purchased":0,
+               "total_failed":1,
+               "total_spent":"0",
+               "purchase_results":[
+                  {
+                     "id":"fea0382a-dc66-4173-8a31-680b0ac55671",
+                     "status":"failed",
+                     "reason":"INSUFFICIENT_BALANCE",
+                     "price":"2.32",
+                     "error_message":"Insufficient balance to purchase this NFT"
+                  }
+               ]
+            } 
     Raises:
         authDataError: If authData is not provided.
         tradingError: If nft_id is not provided or price is not a positive number.
@@ -562,7 +577,7 @@ async def buy(nft_id: str = "", price: int|float = 0, authData: str = "") -> Non
 
     requestExceptionHandler(response, "buy")
 
-    return None
+    return response.json()
 
 async def changePrice(nft_id: str = "", price: float = 0, authData: str = "") -> None:
     """
