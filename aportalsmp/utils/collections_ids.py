@@ -104,4 +104,5 @@ collections_ids = {
     "Bling Binky": "67e55e12-e917-4bdf-9615-771264021fb7",
     "Money Pot": "99f08b67-8723-4506-99e2-b16a5c58ef2a",
     "Pretty Posy": "4b38ccc3-0518-4130-89da-def5abc3a4f4",
+    "Khabib’s Papakha": "182c1bca-96ef-46c5-ab45-d4b98610ff58"
 }
