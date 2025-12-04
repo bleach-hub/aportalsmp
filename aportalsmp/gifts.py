@@ -14,27 +14,26 @@ from urllib.parse import quote_plus
 
 # ================ Floors ================
 
-async def giftsFloors(authData: str = "") -> GiftsFloors:
+async def giftsFloors(authData: Optional[str] = "") -> GiftsFloors:
     """
     Retrieves the floor prices for all gift collections (short names only).
 
     Args:
-        authData (str): The authentication data required for the API request.
+        authData (Optional[str]): Optional authentication data for the API request.
 
     Returns:
         GiftsFloors: An instance of GiftsFloors containing the floor prices of collections if the request is successful.
 
     Raises:
-        authDataError: If authData is not provided.
         requestError: If the API request fails.
     """
 
     URL = API_URL + "collections/floors"
 
-    if authData == "":
-        raise authDataError("aportalsmp: giftsFloors(): Error: authData is required")
+    HEADERS = {**HEADERS_MAIN}
 
-    HEADERS = {**HEADERS_MAIN, "Authorization": authData}
+    if authData:
+        HEADERS["Authorization"] = authData
 
     response = await fetch(method="GET", url=URL, headers=HEADERS, impersonate="chrome110")
 
@@ -42,24 +41,21 @@ async def giftsFloors(authData: str = "") -> GiftsFloors:
 
     return GiftsFloors(response.json()['floorPrices'])
 
-async def filterFloors(gift_name: str = "", authData: str = "") -> Filters:
+async def filterFloors(gift_name: str = "", authData: Optional[str] = "") -> Filters:
     """
     Retrieves the floor prices of models/backdrops/symbols for a specific gift collection.
     Args:
         gift_name (str): The name of the gift collection.
-        authData (str): The authentication data required for the API request.
+        authData (Optional[str]): Optional authentication data for the API request.
     Returns:
         Filters: An instance of Filters containing the floor prices of models/backdrops/symbols for the specified gift collection if the request is successful.
     Raises:
-        authDataError: If authData is not provided.
         floorsError: If gift_name is not provided or is not a string.
         floorsError: If gift_name is not a valid string.
         requestError: If the API request fails or returns a non-200 status code.
     """
     URL = API_URL + "collections/filters"
 
-    if not authData:
-        raise authDataError("aportalsmp: filters(): Error: authData is required")
     if not gift_name:
         raise floorsError("aportalsmp: filters(): Error: gift_name is required")
     if type(gift_name) == str:
@@ -69,7 +65,10 @@ async def filterFloors(gift_name: str = "", authData: str = "") -> Filters:
 
     URL += f"?short_names={gift_name}"
 
-    HEADERS = {**HEADERS_MAIN, "Authorization": authData}
+    HEADERS = {**HEADERS_MAIN}
+
+    if authData:
+        HEADERS["Authorization"] = authData
 
     response = await fetch(method="GET", url=URL, headers=HEADERS, impersonate="chrome110")
 
@@ -118,7 +117,7 @@ async def search(sort: str = "price_asc",
                  max_price: int = 100000,
                  exclude_bundled: bool = True,
                  premarket_status: str = "all",
-                 authData: str = "",
+                 authData: Optional[str] = "",
                  proxies: Optional[dict] = None) -> list[PortalsGift]:
     """
     Search for gifts with various filters and sorting options.
@@ -134,11 +133,10 @@ async def search(sort: str = "price_asc",
         symbol (str | list): The symbol or list of symbols to filter.
         min_price (int): The minimum price of the gifts to filter. Defaults to 0.
         max_price (int): The maximum price of the gifts to filter. Defaults to 100000.
-        authData (str): The authentication data required for the API request.
+        authData (Optional[str]): Optional authentication data for the API request.
     Returns:
         list[PortalsGift]: A list of PortalsGift objects containing the search results.
     Raises:
-        authDataError: If authData is not provided.
         giftsError: If max_price is less than min_price or if min_price and max_price are not integers.
         giftsError: If gift_name, model, backdrop, or symbol are not strings or lists.
         giftsError: If sort is not one of the valid options.
@@ -168,14 +166,12 @@ async def search(sort: str = "price_asc",
     if max_price < 100000:
         URL += f"&min_price={min_price}&max_price={max_price}"
 
-    if authData == "":
-        raise authDataError("aportalsmp: search(): Error: authData is required")
     if max_price < min_price:
         raise giftsError("aportalsmp: search(): Error: max_price must be greater than min_price")
 
     if gift_name:
         if type(gift_name) == str:
-            # ТУт нейм в айди конверт
+            # Тут нейм в айди конверт
             gift_id = collections_ids.get(cap(gift_name))
             if gift_id:
                 URL += f"&collection_ids={gift_id}"
@@ -219,7 +215,10 @@ async def search(sort: str = "price_asc",
     URL += f"&exclude_bundled={str(exclude_bundled).lower()}"
     URL += f"&premarket_status={premarket_status}"
 
-    HEADERS = {**HEADERS_MAIN, "Authorization": authData}
+    HEADERS = {**HEADERS_MAIN}
+
+    if authData:
+        HEADERS["Authorization"] = authData
 
     response = await fetch(method="GET", url=URL, headers=HEADERS, impersonate="chrome110", proxies=proxies)
 
@@ -227,7 +226,9 @@ async def search(sort: str = "price_asc",
 
     return [PortalsGift(gift) for gift in response.json()["results"]]
 
-async def marketActivity(sort: str = "latest", offset: int = 0, limit: int = 20, activityType: str | list = "", gift_name: str | list= "", model: str | list = "", backdrop: str | list = "", symbol: str | list = "", min_price: int = 0, max_price: int = 100000, authData: str = "") -> list[Activity]:
+async def marketActivity(sort: str = "latest", offset: int = 0, limit: int = 20, activityType: str | list = "",
+                         gift_name: str | list= "", model: str | list = "", backdrop: str | list = "", symbol: str | list = "",
+                         min_price: int = 0, max_price: int = 100000, authData: Optional[str] = "") -> list[Activity]:
     """
     Retrieves market activity with various filters and sorting options.
 
@@ -244,13 +245,12 @@ async def marketActivity(sort: str = "latest", offset: int = 0, limit: int = 20,
         symbol (str | list): The symbol or list of symbols to filter.
         min_price (int): The minimum price of the gifts to filter. Defaults to 0.
         max_price (int): The maximum price of the gifts to filter. Defaults to 100000.
-        authData (str): The authentication data required for the API request.
+        authData (Optional[str]): Optional authentication data for the API request.
 
     Returns:
         list[Activity]: A list of Activity objects containing the market activity results.
 
     Raises:
-        authDataError: If authData is not provided.
         giftsError: If max_price is less than min_price or if min_price and max_price are not integers.
         giftsError: If activityType is not a valid string or list.
         giftsError: If gift_name, model, backdrop, or symbol are not strings or lists.
@@ -268,8 +268,6 @@ async def marketActivity(sort: str = "latest", offset: int = 0, limit: int = 20,
     if max_price < 100000:
         URL += f"&min_price={min_price}&max_price={max_price}"
 
-    if authData == "":
-        raise authDataError("aportalsmp: marketActivity(): Error: authData is required")
     if max_price < min_price:
         raise giftsError("aportalsmp: marketActivity(): Error: max_price must be greater than min_price")
     if type(activityType) == str and activityType.lower() not in ["", "buy", "listing", "price_update", "offer"]:
@@ -309,7 +307,10 @@ async def marketActivity(sort: str = "latest", offset: int = 0, limit: int = 20,
     if activityType:
         URL += f"&action_types={activityType}"
 
-    HEADERS = {**HEADERS_MAIN, "Authorization": authData}
+    HEADERS = {**HEADERS_MAIN}
+
+    if authData:
+        HEADERS["Authorization"] = authData
 
     response = await fetch(method="GET", url=URL, headers=HEADERS, impersonate="chrome110")
 
